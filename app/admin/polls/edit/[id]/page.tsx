@@ -2,10 +2,10 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,37 +27,115 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-export default function NewPollPage() {
+interface PollOption {
+  id: number;
+  text: string;
+  votes: number;
+}
+
+interface Poll {
+  id: number;
+  question: string;
+  category: string;
+  status: string;
+  expiresAt: string | null;
+  featured: boolean;
+  options: PollOption[];
+  createdAt: string;
+}
+
+export default function EditPollPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { toast } = useToast();
+  const pollId = Number.parseInt(params.id);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [statusToChange, setStatusToChange] = useState<
+    "draft" | "active" | "ended" | null
+  >(null);
 
   const [formData, setFormData] = useState({
     question: "",
     category: "",
-    options: [
-      { id: 1, text: "" },
-      { id: 2, text: "" },
-    ],
-    status: "draft",
-    expiryEnabled: true,
+    options: [] as { id: number; text: string; votes: number }[],
+    status: "",
+    expiryEnabled: false,
     expiryDate: "",
     expiryTime: "",
     featured: false,
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [originalPoll, setOriginalPoll] = useState<Poll | null>(null);
+
+  useEffect(() => {
+    fetchPoll();
+  }, [pollId]);
+
+  const fetchPoll = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/admin/polls/${pollId}`);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const poll = await response.json();
+      setOriginalPoll(poll);
+
+      // Format expiry date and time if exists
+      let expiryDate = "";
+      let expiryTime = "";
+      let expiryEnabled = false;
+
+      if (poll.expiresAt) {
+        expiryEnabled = true;
+        const expiryDateTime = new Date(poll.expiresAt);
+        expiryDate = expiryDateTime.toISOString().split("T")[0];
+        expiryTime = expiryDateTime.toTimeString().slice(0, 5);
+      }
+
+      setFormData({
+        question: poll.question,
+        category: poll.category,
+        options: poll.options,
+        status: poll.status,
+        expiryEnabled,
+        expiryDate,
+        expiryTime,
+        featured: poll.featured,
+      });
+    } catch (err) {
+      console.error("Error fetching poll:", err);
+      setError("Failed to load poll. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addOption = () => {
-    const newId =
-      formData.options.length > 0
-        ? Math.max(...formData.options.map((o) => o.id)) + 1
-        : 1;
+    const newId = Date.now(); // Use timestamp as temporary ID for new options
 
     setFormData({
       ...formData,
-      options: [...formData.options, { id: newId, text: "" }],
+      options: [...formData.options, { id: newId, text: "", votes: 0 }],
     });
   };
 
@@ -121,7 +199,35 @@ export default function NewPollPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (status: "draft" | "active") => {
+  const handleStatusChange = (status: "draft" | "active" | "ended") => {
+    // If changing to active or ended, show confirmation dialog
+    if (
+      status !== formData.status &&
+      (status === "active" || status === "ended")
+    ) {
+      setStatusToChange(status);
+      setConfirmDialogOpen(true);
+    } else {
+      // Otherwise just update the status
+      setFormData({
+        ...formData,
+        status,
+      });
+    }
+  };
+
+  const confirmStatusChange = () => {
+    if (statusToChange) {
+      setFormData({
+        ...formData,
+        status: statusToChange,
+      });
+      setConfirmDialogOpen(false);
+      setStatusToChange(null);
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast({
         title: "Validation Error",
@@ -144,22 +250,19 @@ export default function NewPollPage() {
         expiresAt = new Date(`${formData.expiryDate}T${formData.expiryTime}`);
       }
 
-      // Prepare options array
-      const options = formData.options.map((option) => option.text);
-
       // Create request body
       const requestBody = {
         question: formData.question,
         category: formData.category,
-        options,
-        status,
+        options: formData.options,
+        status: formData.status,
         expiresAt,
         featured: formData.featured,
       };
 
       // Send request to API
-      const response = await fetch("/api/admin/polls", {
-        method: "POST",
+      const response = await fetch(`/api/admin/polls/${pollId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -168,31 +271,62 @@ export default function NewPollPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create poll");
+        throw new Error(errorData.error || "Failed to update poll");
       }
 
       toast({
         title: "Success",
-        description: `Poll ${
-          status === "draft" ? "saved as draft" : "published"
-        } successfully`,
+        description: "Poll updated successfully",
       });
 
       // Redirect to polls list
       router.push("/admin/polls");
       router.refresh();
     } catch (error) {
-      console.error("Error creating poll:", error);
+      console.error("Error updating poll:", error);
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to create poll",
+          error instanceof Error ? error.message : "Failed to update poll",
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading poll data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2">
+          <Link href="/admin/polls">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Polls
+            </Button>
+          </Link>
+        </div>
+
+        <div className="bg-destructive/15 p-6 rounded-md flex flex-col items-center gap-4">
+          <p className="text-destructive font-medium">{error}</p>
+          <Button variant="outline" onClick={fetchPoll}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -206,16 +340,14 @@ export default function NewPollPage() {
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Create New Poll</h1>
-        <p className="text-muted-foreground">
-          Create a new poll for readers to vote on
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">Edit Poll</h1>
+        <p className="text-muted-foreground">Update poll details and options</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Poll Details</CardTitle>
-          <CardDescription>Enter the details for your new poll</CardDescription>
+          <CardDescription>Edit the details for this poll</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -273,6 +405,43 @@ export default function NewPollPage() {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <div className="flex space-x-2">
+              <Button
+                type="button"
+                variant={formData.status === "draft" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusChange("draft")}
+              >
+                Draft
+              </Button>
+              <Button
+                type="button"
+                variant={formData.status === "active" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusChange("active")}
+              >
+                Active
+              </Button>
+              <Button
+                type="button"
+                variant={formData.status === "ended" ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleStatusChange("ended")}
+              >
+                Ended
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formData.status === "draft"
+                ? "Draft polls are not visible to users"
+                : formData.status === "active"
+                ? "Active polls are visible and can receive votes"
+                : "Ended polls are visible but cannot receive new votes"}
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label
                 htmlFor="options"
@@ -301,6 +470,9 @@ export default function NewPollPage() {
                     }
                     className={errors.options ? "border-destructive" : ""}
                   />
+                  <div className="text-xs text-muted-foreground whitespace-nowrap">
+                    {option.votes} votes
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -404,19 +576,35 @@ export default function NewPollPage() {
         <CardFooter className="flex justify-between">
           <Button
             variant="outline"
-            onClick={() => handleSubmit("draft")}
+            onClick={() => router.push("/admin/polls")}
             disabled={isSubmitting}
           >
-            Save as Draft
+            Cancel
           </Button>
-          <Button
-            onClick={() => handleSubmit("active")}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Publishing..." : "Publish Poll"}
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
         </CardFooter>
       </Card>
+
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
+            <AlertDialogDescription>
+              {statusToChange === "active"
+                ? "This will make the poll visible to users and allow voting. Continue?"
+                : "This will end the poll and prevent new votes. Continue?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmStatusChange}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

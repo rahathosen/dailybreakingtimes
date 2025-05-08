@@ -1,19 +1,17 @@
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw"; // If your markdown includes raw HTML (optional)
+import { cn } from "@/lib/utils";
 
 interface ArticleContentProps {
   content: string;
+  className?: string;
 }
 
-export function ArticleContent({ content }: ArticleContentProps) {
+export function ArticleContent({ content, className }: ArticleContentProps) {
   return (
-    <div className="prose prose-lg max-w-none dark:prose-invert">
-      <ReactMarkdown
-        children={content}
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]} // Be careful with this (only if needed)
-      />
+    <div
+      className={cn("prose prose-lg max-w-none dark:prose-invert", className)}
+    >
+      <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   );
 }

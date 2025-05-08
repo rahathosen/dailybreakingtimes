@@ -6,6 +6,9 @@ import { RelatedArticles } from "@/components/article/related-articles";
 import { MostViewedArticles } from "@/components/article/most-viewed-articles";
 import { RecentArticles } from "@/components/article/recent-articles";
 import { Separator } from "@/components/ui/separator";
+import { PollWidget } from "@/components/poll-widget";
+import { AdBanner } from "@/components/ad-banner";
+
 import prisma from "@/lib/prisma";
 
 interface ArticleData {
@@ -287,6 +290,18 @@ export default async function ArticlePage({
           published_at: formatTimeAgo(article.published_at),
         }))}
       />
+
+      <aside className="lg:col-span-4 space-y-8">
+        <div className="sticky top-24">
+          <PollWidget featured={true} className="mb-8" />
+
+          {/* <AdBanner className="h-64 mb-8" /> */}
+
+          {/* <MostViewedArticles articles={mostViewedArticles} /> */}
+
+          {/* <AdBanner className="h-64 mt-8" /> */}
+        </div>
+      </aside>
     </main>
   );
 }

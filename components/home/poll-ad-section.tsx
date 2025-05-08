@@ -22,7 +22,7 @@ export function PollAdSection() {
       <div className="premium-container container px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-card rounded-lg shadow-sm border border-border p-1">
-            <PollWidget {...pollData} className="h-full" />
+            <PollWidget featured={true} className="mb-8" />
           </div>
           <div className="flex items-center justify-center">
             <AdBanner size="medium" className="shadow-sm" />

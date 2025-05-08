@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,39 +13,82 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import prisma from "@/lib/prisma";
 
-// Mock data - would come from database in real app
-const getPollData = (id: string) => {
-  return {
-    id: Number.parseInt(id),
-    question: "What news topic interests you the most?",
-    category: "Reader Survey",
-    status: "active",
-    totalVotes: 585,
-    createdAt: "May 10, 2023 09:30 AM",
-    expiresAt: "May 17, 2023 09:30 AM",
-    options: [
-      { id: 1, text: "Politics", votes: 245, percentage: 42 },
-      { id: 2, text: "Technology", votes: 189, percentage: 32 },
-      { id: 3, text: "Business", votes: 87, percentage: 15 },
-      { id: 4, text: "Sports", votes: 64, percentage: 11 },
-    ],
-    votingHistory: [
-      { date: "May 10", votes: 120 },
-      { date: "May 11", votes: 145 },
-      { date: "May 12", votes: 98 },
-      { date: "May 13", votes: 156 },
-      { date: "May 14", votes: 66 },
-    ],
-  };
-};
+async function getPollData(id: string) {
+  try {
+    const pollId = Number.parseInt(id);
+    if (isNaN(pollId)) return null;
 
-export default function PollResultsPage({
+    const poll = await prisma.poll.findUnique({
+      where: { id: pollId },
+      include: {
+        options: true,
+      },
+    });
+
+    if (!poll) return null;
+
+    // Calculate total votes and percentages
+    const totalVotes = poll.options.reduce(
+      (sum, option) => sum + option.votes,
+      0
+    );
+    const optionsWithPercentage = poll.options.map((option) => ({
+      ...option,
+      percentage:
+        totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0,
+    }));
+
+    // Sort options by votes (descending)
+    optionsWithPercentage.sort((a, b) => b.votes - a.votes);
+
+    // Create empty voting history since we don't have vote records
+    const votingHistory: { date: string; votes: number }[] = [];
+
+    return {
+      ...poll,
+      totalVotes,
+      options: optionsWithPercentage,
+      votingHistory,
+    };
+  } catch (error) {
+    console.error("Error fetching poll data:", error);
+    return null;
+  }
+}
+
+export default async function PollResultsPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const poll = getPollData(params.id);
+  const poll = await getPollData(params.id);
+
+  if (!poll) {
+    notFound();
+  }
+
+  // Find peak voting time (simplified for this example)
+  const peakVotingTime = "2:00 PM - 4:00 PM";
+
+  // Find most active day
+  const mostActiveDay =
+    poll.votingHistory.length > 0
+      ? poll.votingHistory.reduce(
+          (max, day) => (day.votes > max.votes ? day : max),
+          poll.votingHistory[0]
+        )
+      : { date: "N/A", votes: 0 };
+
+  // Calculate average daily votes
+  const avgDailyVotes =
+    poll.votingHistory.length > 0
+      ? Math.round(
+          poll.votingHistory.reduce((sum, day) => sum + day.votes, 0) /
+            poll.votingHistory.length
+        )
+      : 0;
 
   return (
     <div className="space-y-6">
@@ -83,20 +127,26 @@ export default function PollResultsPage({
               <CardTitle>{poll.question}</CardTitle>
               <CardDescription className="flex items-center gap-2 mt-1">
                 <Badge variant="outline">{poll.category}</Badge>
-                <Badge variant="default">Active</Badge>
+                <Badge
+                  variant={poll.status === "active" ? "default" : "secondary"}
+                >
+                  {poll.status.charAt(0).toUpperCase() + poll.status.slice(1)}
+                </Badge>
+                {poll.featured && <Badge variant="outline">Featured</Badge>}
               </CardDescription>
             </div>
             <div className="text-sm text-muted-foreground">
-              <div>Created: {poll.createdAt}</div>
-              <div>Expires: {poll.expiresAt}</div>
+              <div>Created: {new Date(poll.createdAt).toLocaleString()}</div>
+              {poll.expiresAt && (
+                <div>Expires: {new Date(poll.expiresAt).toLocaleString()}</div>
+              )}
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="results">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-1">
               <TabsTrigger value="results">Results</TabsTrigger>
-              <TabsTrigger value="history">Voting History</TabsTrigger>
             </TabsList>
 
             <TabsContent value="results" className="pt-4">
@@ -152,7 +202,9 @@ export default function PollResultsPage({
                               Leading Option
                             </div>
                             <div className="text-2xl font-bold">
-                              {poll.options[0].text}
+                              {poll.options.length > 0
+                                ? poll.options[0].text
+                                : "N/A"}
                             </div>
                           </div>
                           <div className="space-y-1">
@@ -160,9 +212,12 @@ export default function PollResultsPage({
                               Margin
                             </div>
                             <div className="text-2xl font-bold">
-                              {poll.options[0].percentage -
-                                poll.options[1].percentage}
-                              %
+                              {poll.options.length > 1
+                                ? `${
+                                    poll.options[0].percentage -
+                                    poll.options[1].percentage
+                                  }%`
+                                : "N/A"}
                             </div>
                           </div>
                           <div className="space-y-1">
@@ -182,19 +237,31 @@ export default function PollResultsPage({
                             Key Insights
                           </h4>
                           <ul className="text-sm space-y-1">
+                            {poll.options.length > 0 && (
+                              <li>
+                                {poll.options[0].text} is the most popular
+                                option with {poll.options[0].percentage}% of
+                                votes
+                              </li>
+                            )}
+                            {poll.options.length > 1 && (
+                              <li>
+                                {poll.options[1].text} follows with{" "}
+                                {poll.options[1].percentage}% of votes
+                              </li>
+                            )}
+                            {poll.options.length > 2 && (
+                              <li>
+                                {poll.options
+                                  .slice(2)
+                                  .map((o) => o.text)
+                                  .join(", ")}{" "}
+                                have lower interest levels
+                              </li>
+                            )}
                             <li>
-                              Politics is the most popular topic with 42% of
-                              votes
-                            </li>
-                            <li>
-                              Technology follows closely with 32% of votes
-                            </li>
-                            <li>
-                              Business and Sports have lower interest levels
-                            </li>
-                            <li>
-                              The poll has received {poll.totalVotes} votes so
-                              far
+                              The poll has received {poll.totalVotes}{" "}
+                              {poll.totalVotes === 1 ? "vote" : "votes"} so far
                             </li>
                           </ul>
                         </div>
@@ -202,80 +269,6 @@ export default function PollResultsPage({
                     </CardContent>
                   </Card>
                 </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="history" className="pt-4">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">
-                      Daily Voting Activity
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px] flex items-center justify-center bg-muted/20 rounded-md">
-                      <div className="text-center text-muted-foreground">
-                        <p>Voting history chart visualization</p>
-                        <p className="text-sm">
-                          (Bar chart showing daily votes)
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-4 grid grid-cols-5 gap-2">
-                      {poll.votingHistory.map((day) => (
-                        <div key={day.date} className="text-center">
-                          <div className="text-sm font-medium">{day.date}</div>
-                          <div className="text-lg">{day.votes}</div>
-                          <div className="text-xs text-muted-foreground">
-                            votes
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Voting Patterns</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">
-                            Peak Voting Time
-                          </div>
-                          <div className="text-xl font-medium">
-                            2:00 PM - 4:00 PM
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Highest activity period
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">
-                            Most Active Day
-                          </div>
-                          <div className="text-xl font-medium">May 13</div>
-                          <div className="text-xs text-muted-foreground">
-                            156 votes
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">
-                            Average Daily Votes
-                          </div>
-                          <div className="text-xl font-medium">117</div>
-                          <div className="text-xs text-muted-foreground">
-                            votes per day
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             </TabsContent>
           </Tabs>
