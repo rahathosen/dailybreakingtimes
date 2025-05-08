@@ -31,6 +31,9 @@ import { MarkdownEditor } from "@/components/markdown-editor";
 import { ImageUpload } from "@/components/image-upload";
 import { MultiSelect } from "@/components/multi-select";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface Category {
   id: number;
@@ -53,9 +56,33 @@ interface Tag {
   name: string;
 }
 
-export default function NewArticlePage() {
+interface ArticleData {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  featured_image: string | null;
+  is_breaking: boolean;
+  is_highlighted: boolean;
+  published_at: string | null;
+  categoryId: number;
+  subcategoryId: number;
+  newsTypeId: number;
+  category: Category;
+  subcategory: Subcategory;
+  news_type: NewsType;
+  tags: { tag: Tag }[];
+}
+
+export default function EditArticlePage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
   const { toast } = useToast();
+  const articleId = Number.parseInt(params.id);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -76,13 +103,15 @@ export default function NewArticlePage() {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [newsTypes, setNewsTypes] = useState<NewsType[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Filter subcategories based on selected category
   const filteredSubcategories = subcategories.filter(
-    (subcategory) => subcategory.categoryId === Number.parseInt(categoryId)
+    (subcategory) =>
+      subcategory.categoryId === Number.parseInt(categoryId || "0")
   );
 
   // Format tags for multi-select
@@ -91,28 +120,51 @@ export default function NewArticlePage() {
     label: tag.name,
   }));
 
-  // Auto-generate slug from title
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "") // Remove special chars
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
-  };
-
-  // Handle title change and auto-generate slug
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    setTitle(newTitle);
-    setSlug(generateSlug(newTitle));
-  };
-
-  // Load categories, subcategories, news types, and tags
+  // Load article data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchArticle = async () => {
       try {
         setLoading(true);
+        setFetchError(null);
 
+        const response = await fetch(`/api/admin/articles/${articleId}`);
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error || `Failed to fetch article: ${response.status}`
+          );
+        }
+
+        const article: ArticleData = await response.json();
+
+        // Set form values
+        setTitle(article.title);
+        setSlug(article.slug);
+        setExcerpt(article.excerpt || "");
+        setContent(article.content);
+        setFeaturedImage(article.featured_image);
+        setCategoryId(article.categoryId.toString());
+        setSubcategoryId(article.subcategoryId.toString());
+        setNewsTypeId(article.newsTypeId.toString());
+        setSelectedTags(article.tags.map((t) => t.tag.id));
+        setIsBreaking(article.is_breaking);
+        setIsHighlighted(article.is_highlighted);
+
+        if (article.published_at) {
+          // Format date for datetime-local input
+          const date = new Date(article.published_at);
+          setPublishDate(format(date, "yyyy-MM-dd'T'HH:mm"));
+        }
+      } catch (err) {
+        console.error("Error fetching article:", err);
+        setFetchError((err as Error).message);
+      }
+    };
+
+    // Load categories, subcategories, news types, and tags
+    const fetchData = async () => {
+      try {
         const [categoriesRes, subcategoriesRes, newsTypesRes, tagsRes] =
           await Promise.all([
             fetch("/api/admin/categories"),
@@ -144,14 +196,32 @@ export default function NewArticlePage() {
         setTags(tagsData);
       } catch (err) {
         console.error("Error fetching data:", err);
-        setError("Failed to load form data. Please try refreshing the page.");
-      } finally {
-        setLoading(false);
+        setFetchError(
+          "Failed to load form data. Please try refreshing the page."
+        );
       }
     };
 
-    fetchData();
-  }, []);
+    Promise.all([fetchArticle(), fetchData()]).finally(() => setLoading(false));
+  }, [articleId]);
+
+  // Auto-generate slug from title
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "") // Remove special chars
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
+  };
+
+  // Handle title change and auto-generate slug if slug is empty
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    if (!slug) {
+      setSlug(generateSlug(newTitle));
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (isDraft = false) => {
@@ -207,8 +277,8 @@ export default function NewArticlePage() {
       };
 
       // Submit to API
-      const response = await fetch("/api/admin/articles", {
-        method: "POST",
+      const response = await fetch(`/api/admin/articles/${articleId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -216,27 +286,82 @@ export default function NewArticlePage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create article");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to update article");
       }
 
       // Show success message
       toast({
-        title: "Article created",
+        title: "Article updated",
         description: isDraft
           ? "Article saved as draft"
-          : "Article published successfully",
+          : "Article updated successfully",
       });
 
       // Redirect to articles list
       router.push("/admin/articles");
     } catch (err) {
-      console.error("Error creating article:", err);
+      console.error("Error updating article:", err);
       setError((err as Error).message);
+
+      toast({
+        title: "Error",
+        description: (err as Error).message,
+        variant: "destructive",
+      });
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2">
+          <Link href="/admin/articles">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Articles
+            </Button>
+          </Link>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Edit Article</h1>
+          <p className="text-muted-foreground">Loading article data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2">
+          <Link href="/admin/articles">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Articles
+            </Button>
+          </Link>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Edit Article</h1>
+        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {fetchError}
+            <div className="mt-2">
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -250,8 +375,8 @@ export default function NewArticlePage() {
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Add New Article</h1>
-        <p className="text-muted-foreground">Create a new news article</p>
+        <h1 className="text-3xl font-bold tracking-tight">Edit Article</h1>
+        <p className="text-muted-foreground">Update article details</p>
       </div>
 
       {error && (
@@ -271,7 +396,7 @@ export default function NewArticlePage() {
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
               <CardDescription>
-                Enter the basic details for the article
+                Edit the basic details for the article
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -381,6 +506,7 @@ export default function NewArticlePage() {
               <div className="space-y-2">
                 <Label htmlFor="image">Featured Image</Label>
                 <ImageUpload
+                  initialImage={featuredImage}
                   onImageUploaded={(url) => setFeaturedImage(url)}
                   onImageRemoved={() => setFeaturedImage(null)}
                 />
@@ -393,7 +519,7 @@ export default function NewArticlePage() {
             <CardHeader>
               <CardTitle>Article Content</CardTitle>
               <CardDescription>
-                Write or paste the full article content in Markdown format
+                Edit the full article content in Markdown format
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -462,7 +588,7 @@ export default function NewArticlePage() {
                 Save as Draft
               </Button>
               <Button onClick={() => handleSubmit(false)} disabled={submitting}>
-                {submitting ? "Publishing..." : "Publish Article"}
+                {submitting ? "Updating..." : "Update Article"}
               </Button>
             </CardFooter>
           </Card>

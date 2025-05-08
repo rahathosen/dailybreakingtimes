@@ -57,6 +57,7 @@ model Article {
   content        String
   excerpt        String?
   featured_image String?
+  viewCount      Int              @default(0)
   is_breaking    Boolean          @default(false)
   is_highlighted Boolean          @default(false)
   published_at   DateTime?
