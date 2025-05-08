@@ -1,193 +1,246 @@
-import { ArticleHeader } from "@/components/article/article-header"
-import { ArticleContent } from "@/components/article/article-content"
-import { ArticleFooter } from "@/components/article/article-footer"
-import { RelatedArticles } from "@/components/article/related-articles"
-import { MostViewedArticles } from "@/components/article/most-viewed-articles"
-import { RecentArticles } from "@/components/article/recent-articles"
-import { Separator } from "@/components/ui/separator"
+import { notFound } from "next/navigation";
+import { ArticleHeader } from "@/components/article/article-header";
+import { ArticleContent } from "@/components/article/article-content";
+import { ArticleFooter } from "@/components/article/article-footer";
+import { RelatedArticles } from "@/components/article/related-articles";
+import { MostViewedArticles } from "@/components/article/most-viewed-articles";
+import { RecentArticles } from "@/components/article/recent-articles";
+import { Separator } from "@/components/ui/separator";
+import prisma from "@/lib/prisma";
 
-// This would come from a database or API in a real application
-const getArticleData = (category: string, slug: string) => {
-  return {
-    title: "Global Leaders Reach Historic Climate Agreement at Summit",
-    category: "News",
-    subcategory: "World",
-    author: {
-      name: "Jane Smith",
-      avatar: "/placeholder.svg?height=96&width=96",
-      role: "Senior Political Correspondent",
-    },
-    publishedAt: "May 15, 2023",
-    readTime: "8 min",
-    tags: ["Climate Change", "Global Summit", "Environment", "Politics"],
-    featuredImage: "/placeholder.svg?height=600&width=1200",
-    content: `
-      <p>In a landmark decision that could reshape global climate policy for decades to come, world leaders have committed to ambitious carbon reduction targets, signaling a new era in international climate cooperation.</p>
-      
-      <p>The agreement, reached after five days of intense negotiations at the Global Climate Summit, includes substantial financial commitments to support developing nations in their transition to cleaner energy sources.</p>
-      
-      <h2>Unprecedented Cooperation</h2>
-      
-      <p>"This is a historic moment," said UN Secretary-General António Guterres. "For the first time, we have a truly global commitment that includes concrete actions, not just aspirational goals."</p>
-      
-      <p>The agreement calls for a 50% reduction in global carbon emissions by 2030 and net-zero emissions by 2050. It also establishes a $100 billion annual fund to help developing countries adapt to climate change and invest in renewable energy infrastructure.</p>
-      
-      <p>Key points of the agreement include:</p>
-      
-      <ul>
-        <li>Phasing out coal power in developed nations by 2030</li>
-        <li>Ending subsidies for fossil fuels globally by 2025</li>
-        <li>Protecting 30% of land and ocean areas by 2030</li>
-        <li>Creating a carbon pricing mechanism to be implemented by 2024</li>
-      </ul>
-      
-      <h2>Challenges Ahead</h2>
-      
-      <p>Despite the optimism surrounding the agreement, challenges remain. Implementation will require significant policy changes at national levels, and some industry groups have already expressed concerns about the pace of the transition.</p>
-      
-      <p>"The real test will be turning these commitments into action," said climate scientist Dr. Maria Rodriguez. "We've seen ambitious agreements before, but follow-through has often been lacking."</p>
-      
-      <p>The agreement includes a robust monitoring and reporting system, with countries required to submit progress reports every two years. A compliance committee will review these reports and has the authority to recommend corrective actions.</p>
-      
-      <h2>Economic Implications</h2>
-      
-      <p>Economists predict that the agreement will accelerate the already rapid growth in renewable energy sectors. "This creates certainty for investors," said economist James Chen. "We expect to see a significant shift in capital from fossil fuels to clean energy over the next decade."</p>
-      
-      <p>Stock markets responded positively to the news, with renewable energy companies seeing substantial gains. However, traditional energy companies experienced mixed results, with those already investing in clean energy alternatives performing better than those heavily focused on fossil fuels.</p>
-      
-      <h2>Public Response</h2>
-      
-      <p>Public reaction has been largely positive, with environmental groups calling the agreement a crucial step forward. Climate activists, while celebrating the agreement, emphasized that continued pressure would be necessary to ensure governments fulfill their commitments.</p>
-      
-      <p>"This is a victory for the millions of young people who have been demanding action," said youth climate activist Sofia Patel. "But our work is far from over. We'll be watching closely to make sure these promises become reality."</p>
-      
-      <p>As world leaders return to their respective countries, the focus now shifts to developing the national policies and legislation needed to implement the agreement. The first major test will come next year, when countries are required to submit their detailed plans for achieving the 2030 targets.</p>
-    `,
-    relatedArticles: [
-      {
-        id: 1,
-        title: "Climate Scientists React to New Global Agreement",
-        excerpt: "Leading climate researchers share their perspectives on whether the new targets are achievable.",
-        image: "/placeholder.svg?height=300&width=600&text=Climate",
-        category: "Science",
-        publishedAt: "2 hours ago",
-        slug: "climate-scientists-react",
+interface ArticleData {
+  title: string;
+  category: {
+    name: string;
+    slug: string;
+  };
+  subcategory: {
+    name: string;
+    slug: string;
+  } | null;
+  published_at: Date;
+  content: string;
+  excerpt: string;
+  featured_image: string | null;
+  tags: {
+    tag: {
+      name: string;
+      slug: string;
+    };
+  }[];
+  viewCount: number;
+}
+
+async function getArticleData(category: string, slug: string) {
+  try {
+    // Find the category by slug
+    const categoryData = await prisma.category.findFirst({
+      where: {
+        slug: category,
       },
-      {
-        id: 2,
-        title: "How the Climate Agreement Will Affect Global Markets",
-        excerpt: "Financial analysts predict major shifts in investment patterns following the historic climate deal.",
-        image: "/placeholder.svg?height=300&width=600&text=Markets",
-        category: "Business",
-        publishedAt: "5 hours ago",
-        slug: "climate-agreement-markets",
+    });
+
+    if (!categoryData) {
+      return null;
+    }
+
+    // Find the article by slug and category
+    const article = await prisma.article.findFirst({
+      where: {
+        slug: slug,
+        categoryId: categoryData.id,
+        published_at: {
+          lte: new Date(),
+        },
       },
-      {
-        id: 3,
-        title: "The Technology Behind Carbon Capture Innovations",
-        excerpt: "New technologies that could help countries meet their ambitious carbon reduction targets.",
-        image: "/placeholder.svg?height=300&width=600&text=Technology",
-        category: "Technology",
-        publishedAt: "1 day ago",
-        slug: "carbon-capture-innovations",
+      include: {
+        category: true,
+        subcategory: true,
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
+        news_type: true,
       },
-      {
-        id: 4,
-        title: "Environmental Activists Celebrate Climate Deal Victory",
-        excerpt: "Grassroots organizations worldwide are celebrating the new climate agreement as a major win.",
-        image: "/placeholder.svg?height=300&width=600&text=Activism",
-        category: "Society",
-        publishedAt: "1 day ago",
-        slug: "activists-celebrate-climate-deal",
+    });
+
+    if (!article) {
+      return null;
+    }
+
+    // Get related articles
+    const relatedArticles = await prisma.article.findMany({
+      where: {
+        OR: [
+          { categoryId: article.categoryId },
+          { subcategoryId: article.subcategoryId },
+        ],
+        NOT: {
+          id: article.id,
+        },
+        published_at: {
+          lte: new Date(),
+        },
       },
-    ],
-    mostViewedArticles: [
-      {
-        id: 1,
-        title: "Tech Giants Unveil Revolutionary AI Platform",
-        image: "/placeholder.svg?height=200&width=200&text=AI",
-        category: "Technology",
-        publishedAt: "1 day ago",
-        slug: "tech-giants-ai-platform",
-        views: 24560,
+      include: {
+        category: true,
+        subcategory: true,
       },
-      {
-        id: 2,
-        title: "Markets Surge as Central Bank Announces New Policy",
-        image: "/placeholder.svg?height=200&width=200&text=Markets",
-        category: "Business",
-        publishedAt: "2 days ago",
-        slug: "markets-surge-central-bank",
-        views: 18720,
+      orderBy: {
+        published_at: "desc",
       },
-      {
-        id: 3,
-        title: "Major Breakthrough in Cancer Research Announced",
-        image: "/placeholder.svg?height=200&width=200&text=Health",
-        category: "Health",
-        publishedAt: "3 days ago",
-        slug: "breakthrough-cancer-research",
-        views: 15340,
+      take: 4,
+    });
+
+    // Get most viewed articles
+    const mostViewedArticles = await prisma.article.findMany({
+      where: {
+        published_at: {
+          lte: new Date(),
+        },
       },
-      {
-        id: 4,
-        title: "Historic Peace Deal Signed in Middle East Conflict",
-        image: "/placeholder.svg?height=200&width=200&text=Politics",
-        category: "Politics",
-        publishedAt: "2 days ago",
-        slug: "peace-deal-middle-east",
-        views: 12890,
+      include: {
+        category: true,
       },
-      {
-        id: 5,
-        title: "Olympic Committee Announces Host City for 2036 Games",
-        image: "/placeholder.svg?height=200&width=200&text=Sports",
-        category: "Sports",
-        publishedAt: "4 days ago",
-        slug: "olympic-host-city-2036",
-        views: 10450,
+      orderBy: {
+        viewCount: "desc",
       },
-    ],
-    recentArticles: [
-      {
-        id: 1,
-        title: "New Economic Policy to Boost Small Businesses",
-        image: "/placeholder.svg?height=200&width=200&text=Economy",
-        category: "Business",
-        publishedAt: "3 hours ago",
-        slug: "economic-policy-small-business",
+      take: 5,
+    });
+
+    // Get recent articles
+    const recentArticles = await prisma.article.findMany({
+      where: {
+        published_at: {
+          lte: new Date(),
+        },
       },
-      {
-        id: 2,
-        title: "Scientists Discover New Species in Amazon Rainforest",
-        image: "/placeholder.svg?height=200&width=200&text=Science",
-        category: "Science",
-        publishedAt: "5 hours ago",
-        slug: "new-species-amazon-rainforest",
+      include: {
+        category: true,
       },
-      {
-        id: 3,
-        title: "Film Festival Announces Award Winners",
-        image: "/placeholder.svg?height=200&width=200&text=Arts",
-        category: "Arts",
-        publishedAt: "8 hours ago",
-        slug: "film-festival-winners",
+      orderBy: {
+        published_at: "desc",
       },
-      {
-        id: 4,
-        title: "Government Announces Emergency Response to Flooding",
-        image: "/placeholder.svg?height=200&width=200&text=Weather",
-        category: "Weather",
-        publishedAt: "10 hours ago",
-        slug: "emergency-response-flooding",
+      take: 4,
+    });
+
+    // Increment view count
+    await prisma.article.update({
+      where: {
+        id: article.id,
       },
-    ],
+      data: {
+        viewCount: {
+          increment: 1,
+        },
+      },
+    });
+
+    return {
+      article: {
+        title: article.title,
+        category: article.category,
+        subcategory: article.subcategory,
+        published_at: article.published_at,
+        content: article.content,
+        excerpt: article.excerpt,
+        featured_image: article.featured_image,
+        tags: article.tags,
+        viewCount: article.viewCount + 1, // Incremented count
+      },
+      relatedArticles: relatedArticles.map((related) => ({
+        id: related.id,
+        title: related.title,
+        excerpt: related.excerpt || "",
+        image:
+          related.featured_image ||
+          `/placeholder.svg?height=300&width=600&text=${related.category.name}`,
+        category: related.category.name,
+        published_at: related.published_at,
+        slug: related.slug,
+      })),
+      mostViewedArticles: mostViewedArticles.map((viewed) => ({
+        id: viewed.id,
+        title: viewed.title,
+        image:
+          viewed.featured_image ||
+          `/placeholder.svg?height=200&width=200&text=${viewed.category.name}`,
+        category: viewed.category.name,
+        published_at: viewed.published_at,
+        slug: viewed.slug,
+        viewCount: viewed.viewCount,
+      })),
+      recentArticles: recentArticles.map((recent) => ({
+        id: recent.id,
+        title: recent.title,
+        image:
+          recent.featured_image ||
+          `/placeholder.svg?height=200&width=200&text=${recent.category.name}`,
+        category: recent.category.name,
+        published_at: recent.published_at,
+        slug: recent.slug,
+      })),
+    };
+  } catch (error) {
+    console.error("Error fetching article:", error);
+    return null;
   }
 }
 
-export default function ArticlePage({ params }: { params: { category: string; slug: string } }) {
-  const { category, slug } = params
-  const article = getArticleData(category, slug)
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function formatTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) {
+    return `${diffInSeconds} seconds ago`;
+  }
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} ${diffInMinutes === 1 ? "minute" : "minutes"} ago`;
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours} ${diffInHours === 1 ? "hour" : "hours"} ago`;
+  }
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 30) {
+    return `${diffInDays} ${diffInDays === 1 ? "day" : "days"} ago`;
+  }
+
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths < 12) {
+    return `${diffInMonths} ${diffInMonths === 1 ? "month" : "months"} ago`;
+  }
+
+  const diffInYears = Math.floor(diffInMonths / 12);
+  return `${diffInYears} ${diffInYears === 1 ? "year" : "years"} ago`;
+}
+
+export default async function ArticlePage({
+  params,
+}: {
+  params: { category: string; slug: string };
+}) {
+  const { category, slug } = params;
+  const data = await getArticleData(category, slug);
+
+  if (!data) {
+    notFound();
+  }
+
+  const { article, relatedArticles, mostViewedArticles, recentArticles } = data;
 
   return (
     <main className="container mx-auto px-4 py-8 md:px-6 lg:px-8">
@@ -198,11 +251,10 @@ export default function ArticlePage({ params }: { params: { category: string; sl
               title={article.title}
               category={article.category}
               subcategory={article.subcategory}
-              author={article.author}
-              publishedAt={article.publishedAt}
-              readTime={article.readTime}
-              tags={article.tags}
-              featuredImage={article.featuredImage}
+              publishedAt={formatDate(article.published_at)}
+              readTime={`${Math.ceil(article.content.length / 1000)} min`}
+              tags={article.tags.map((t) => t.tag.name)}
+              featuredImage={article.featured_image || "/placeholder.svg"}
             />
 
             <ArticleContent content={article.content} />
@@ -212,14 +264,29 @@ export default function ArticlePage({ params }: { params: { category: string; sl
         </div>
 
         <div className="lg:col-span-4 space-y-8">
-          <MostViewedArticles articles={article.mostViewedArticles} />
-          <RecentArticles articles={article.recentArticles} />
+          <MostViewedArticles
+            articles={mostViewedArticles.map((article) => ({
+              ...article,
+              published_at: formatTimeAgo(article.published_at),
+            }))}
+          />
+          <RecentArticles
+            articles={recentArticles.map((article) => ({
+              ...article,
+              published_at: formatTimeAgo(article.published_at),
+            }))}
+          />
         </div>
       </div>
 
       <Separator className="my-12" />
 
-      <RelatedArticles articles={article.relatedArticles} />
+      <RelatedArticles
+        articles={relatedArticles.map((article) => ({
+          ...article,
+          published_at: formatTimeAgo(article.published_at),
+        }))}
+      />
     </main>
-  )
+  );
 }

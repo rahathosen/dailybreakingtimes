@@ -88,3 +88,23 @@ model AdminSession {
   expires   DateTime
   createdAt DateTime @default(now())
 }
+
+model Poll {
+  id        Int          @id @default(autoincrement())
+  question  String
+  category  String
+  status    String       @default("draft") // draft, active, ended
+  featured  Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  expiresAt DateTime?
+  options   PollOption[]
+}
+
+model PollOption {
+  id     Int    @id @default(autoincrement())
+  text   String
+  votes  Int    @default(0)
+  pollId Int
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+}

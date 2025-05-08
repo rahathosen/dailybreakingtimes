@@ -1,11 +1,17 @@
-import Link from "next/link"
-import { ArrowLeft, Download, Share2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
+import Link from "next/link";
+import { ArrowLeft, Download, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 // Mock data - would come from database in real app
 const getPollData = (id: string) => {
@@ -30,31 +36,15 @@ const getPollData = (id: string) => {
       { date: "May 13", votes: 156 },
       { date: "May 14", votes: 66 },
     ],
-    demographics: {
-      age: [
-        { group: "18-24", percentage: 15 },
-        { group: "25-34", percentage: 32 },
-        { group: "35-44", percentage: 28 },
-        { group: "45-54", percentage: 14 },
-        { group: "55+", percentage: 11 },
-      ],
-      gender: [
-        { group: "Male", percentage: 58 },
-        { group: "Female", percentage: 41 },
-        { group: "Other", percentage: 1 },
-      ],
-      location: [
-        { group: "North America", percentage: 45 },
-        { group: "Europe", percentage: 30 },
-        { group: "Asia", percentage: 15 },
-        { group: "Other", percentage: 10 },
-      ],
-    },
-  }
-}
+  };
+};
 
-export default function PollResultsPage({ params }: { params: { id: string } }) {
-  const poll = getPollData(params.id)
+export default function PollResultsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const poll = getPollData(params.id);
 
   return (
     <div className="space-y-6">
@@ -70,7 +60,9 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Poll Results</h1>
-          <p className="text-muted-foreground">Detailed results and analytics</p>
+          <p className="text-muted-foreground">
+            Detailed results and analytics
+          </p>
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm">
@@ -102,10 +94,9 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="results">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="results">Results</TabsTrigger>
               <TabsTrigger value="history">Voting History</TabsTrigger>
-              <TabsTrigger value="demographics">Demographics</TabsTrigger>
             </TabsList>
 
             <TabsContent value="results" className="pt-4">
@@ -113,7 +104,9 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">Vote Distribution</CardTitle>
+                      <CardTitle className="text-lg">
+                        Vote Distribution
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
@@ -121,11 +114,17 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
                           <div key={option.id} className="space-y-1">
                             <div className="flex justify-between items-center">
                               <span className="font-medium">{option.text}</span>
-                              <span className="text-sm font-medium">{option.percentage}%</span>
+                              <span className="text-sm font-medium">
+                                {option.percentage}%
+                              </span>
                             </div>
-                            <Progress value={option.percentage} className="h-2" />
+                            <Progress
+                              value={option.percentage}
+                              className="h-2"
+                            />
                             <div className="text-xs text-muted-foreground">
-                              {option.votes} {option.votes === 1 ? "vote" : "votes"}
+                              {option.votes}{" "}
+                              {option.votes === 1 ? "vote" : "votes"}
                             </div>
                           </div>
                         ))}
@@ -141,34 +140,62 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <div className="text-sm text-muted-foreground">Total Votes</div>
-                            <div className="text-2xl font-bold">{poll.totalVotes}</div>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="text-sm text-muted-foreground">Leading Option</div>
-                            <div className="text-2xl font-bold">{poll.options[0].text}</div>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="text-sm text-muted-foreground">Margin</div>
+                            <div className="text-sm text-muted-foreground">
+                              Total Votes
+                            </div>
                             <div className="text-2xl font-bold">
-                              {poll.options[0].percentage - poll.options[1].percentage}%
+                              {poll.totalVotes}
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <div className="text-sm text-muted-foreground">Options</div>
-                            <div className="text-2xl font-bold">{poll.options.length}</div>
+                            <div className="text-sm text-muted-foreground">
+                              Leading Option
+                            </div>
+                            <div className="text-2xl font-bold">
+                              {poll.options[0].text}
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-sm text-muted-foreground">
+                              Margin
+                            </div>
+                            <div className="text-2xl font-bold">
+                              {poll.options[0].percentage -
+                                poll.options[1].percentage}
+                              %
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-sm text-muted-foreground">
+                              Options
+                            </div>
+                            <div className="text-2xl font-bold">
+                              {poll.options.length}
+                            </div>
                           </div>
                         </div>
 
                         <Separator />
 
                         <div className="pt-2">
-                          <h4 className="text-sm font-medium mb-2">Key Insights</h4>
+                          <h4 className="text-sm font-medium mb-2">
+                            Key Insights
+                          </h4>
                           <ul className="text-sm space-y-1">
-                            <li>Politics is the most popular topic with 42% of votes</li>
-                            <li>Technology follows closely with 32% of votes</li>
-                            <li>Business and Sports have lower interest levels</li>
-                            <li>The poll has received {poll.totalVotes} votes so far</li>
+                            <li>
+                              Politics is the most popular topic with 42% of
+                              votes
+                            </li>
+                            <li>
+                              Technology follows closely with 32% of votes
+                            </li>
+                            <li>
+                              Business and Sports have lower interest levels
+                            </li>
+                            <li>
+                              The poll has received {poll.totalVotes} votes so
+                              far
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -182,13 +209,17 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
               <div className="space-y-6">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Daily Voting Activity</CardTitle>
+                    <CardTitle className="text-lg">
+                      Daily Voting Activity
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[300px] flex items-center justify-center bg-muted/20 rounded-md">
                       <div className="text-center text-muted-foreground">
                         <p>Voting history chart visualization</p>
-                        <p className="text-sm">(Bar chart showing daily votes)</p>
+                        <p className="text-sm">
+                          (Bar chart showing daily votes)
+                        </p>
                       </div>
                     </div>
                     <div className="mt-4 grid grid-cols-5 gap-2">
@@ -196,7 +227,9 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
                         <div key={day.date} className="text-center">
                           <div className="text-sm font-medium">{day.date}</div>
                           <div className="text-lg">{day.votes}</div>
-                          <div className="text-xs text-muted-foreground">votes</div>
+                          <div className="text-xs text-muted-foreground">
+                            votes
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -211,82 +244,35 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">Peak Voting Time</div>
-                          <div className="text-xl font-medium">2:00 PM - 4:00 PM</div>
-                          <div className="text-xs text-muted-foreground">Highest activity period</div>
+                          <div className="text-sm text-muted-foreground">
+                            Peak Voting Time
+                          </div>
+                          <div className="text-xl font-medium">
+                            2:00 PM - 4:00 PM
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Highest activity period
+                          </div>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">Most Active Day</div>
+                          <div className="text-sm text-muted-foreground">
+                            Most Active Day
+                          </div>
                           <div className="text-xl font-medium">May 13</div>
-                          <div className="text-xs text-muted-foreground">156 votes</div>
+                          <div className="text-xs text-muted-foreground">
+                            156 votes
+                          </div>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-sm text-muted-foreground">Average Daily Votes</div>
+                          <div className="text-sm text-muted-foreground">
+                            Average Daily Votes
+                          </div>
                           <div className="text-xl font-medium">117</div>
-                          <div className="text-xs text-muted-foreground">votes per day</div>
+                          <div className="text-xs text-muted-foreground">
+                            votes per day
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="demographics" className="pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Age Distribution</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {poll.demographics.age.map((item) => (
-                        <div key={item.group} className="space-y-1">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">{item.group}</span>
-                            <span className="text-sm font-medium">{item.percentage}%</span>
-                          </div>
-                          <Progress value={item.percentage} className="h-2" />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Gender Distribution</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {poll.demographics.gender.map((item) => (
-                        <div key={item.group} className="space-y-1">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">{item.group}</span>
-                            <span className="text-sm font-medium">{item.percentage}%</span>
-                          </div>
-                          <Progress value={item.percentage} className="h-2" />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">Geographic Distribution</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {poll.demographics.location.map((item) => (
-                        <div key={item.group} className="space-y-1">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm">{item.group}</span>
-                            <span className="text-sm font-medium">{item.percentage}%</span>
-                          </div>
-                          <Progress value={item.percentage} className="h-2" />
-                        </div>
-                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -296,5 +282,5 @@ export default function PollResultsPage({ params }: { params: { id: string } }) 
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
