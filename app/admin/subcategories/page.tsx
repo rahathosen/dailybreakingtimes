@@ -1,31 +1,39 @@
-import Link from "next/link"
-import { Plus, Edit, Trash2, Eye, EyeOff, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
+import Link from "next/link";
+import { Plus, Edit, Trash2, Eye, EyeOff, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { prisma } from "@/lib/prisma";
 
-// Mock data - would come from database in real app
-const subcategories = [
-  { id: 1, name: "Breaking", slug: "breaking", category: "News", show_in_header: true, is_highlighted: true },
-  { id: 2, name: "World", slug: "world", category: "News", show_in_header: true, is_highlighted: false },
-  { id: 3, name: "National", slug: "national", category: "News", show_in_header: true, is_highlighted: false },
-  { id: 4, name: "Local", slug: "local", category: "News", show_in_header: true, is_highlighted: false },
-  { id: 5, name: "Politics", slug: "politics", category: "News", show_in_header: true, is_highlighted: false },
-  { id: 6, name: "Economy", slug: "economy", category: "Business", show_in_header: true, is_highlighted: false },
-  { id: 7, name: "Markets", slug: "markets", category: "Business", show_in_header: true, is_highlighted: false },
-  { id: 8, name: "Technology", slug: "technology", category: "Business", show_in_header: true, is_highlighted: true },
-  { id: 9, name: "Movies", slug: "movies", category: "Arts", show_in_header: true, is_highlighted: true },
-  { id: 10, name: "Travel", slug: "travel", category: "Lifestyle", show_in_header: true, is_highlighted: true },
-]
+export default async function SubcategoriesPage() {
+  // Ensure user is authenticated
 
-export default function SubcategoriesPage() {
+  // Fetch subcategories with their categories
+  const subcategories = await prisma.subcategory.findMany({
+    include: {
+      category: true,
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Subcategories</h1>
-          <p className="text-muted-foreground">Manage your news subcategories</p>
+          <p className="text-muted-foreground">
+            Manage your news subcategories
+          </p>
         </div>
         <Link href="/admin/subcategories/new">
           <Button>
@@ -55,11 +63,14 @@ export default function SubcategoriesPage() {
                 <TableCell>{subcategory.name}</TableCell>
                 <TableCell>{subcategory.slug}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{subcategory.category}</Badge>
+                  <Badge variant="outline">{subcategory.category.name}</Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
-                    <Switch id={`show-${subcategory.id}`} checked={subcategory.show_in_header} />
+                    <Switch
+                      id={`show-${subcategory.id}`}
+                      checked={subcategory.show_in_header}
+                    />
                     {subcategory.show_in_header ? (
                       <Eye className="h-4 w-4 text-muted-foreground" />
                     ) : (
@@ -69,15 +80,24 @@ export default function SubcategoriesPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
-                    <Switch id={`highlight-${subcategory.id}`} checked={subcategory.is_highlighted} />
-                    {subcategory.is_highlighted && <Star className="h-4 w-4 text-gold fill-gold" />}
+                    <Switch
+                      id={`highlight-${subcategory.id}`}
+                      checked={subcategory.is_highlighted}
+                    />
+                    {subcategory.is_highlighted && (
+                      <Star className="h-4 w-4 text-gold fill-gold" />
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link
+                        href={`/admin/subcategories/edit/${subcategory.id}`}
+                      >
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Link>
                     </Button>
                     <Button variant="ghost" size="icon">
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -91,5 +111,5 @@ export default function SubcategoriesPage() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

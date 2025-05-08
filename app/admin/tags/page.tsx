@@ -1,22 +1,33 @@
-import Link from "next/link"
-import { Plus, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import Link from "next/link";
+import { Plus, Edit, Trash2, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { prisma } from "@/lib/prisma";
 
-// Mock data - would come from database in real app
-const tags = [
-  { id: 1, name: "Election 2024", slug: "election-2024", articles: 12 },
-  { id: 2, name: "Climate Crisis", slug: "climate-crisis", articles: 8 },
-  { id: 3, name: "Tech Revolution", slug: "tech-revolution", articles: 15 },
-  { id: 4, name: "Global Economy", slug: "global-economy", articles: 10 },
-  { id: 5, name: "Health Updates", slug: "health-updates", articles: 7 },
-  { id: 6, name: "COVID-19", slug: "covid-19", articles: 22 },
-  { id: 7, name: "Artificial Intelligence", slug: "artificial-intelligence", articles: 18 },
-  { id: 8, name: "Space Exploration", slug: "space-exploration", articles: 5 },
-]
+export default async function TagsPage() {
+  // Ensure user is authenticated
 
-export default function TagsPage() {
+  // Fetch tags with article count
+  const tags = await prisma.tag.findMany({
+    include: {
+      _count: {
+        select: { articles: true },
+      },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -40,6 +51,7 @@ export default function TagsPage() {
               <TableHead>Name</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Articles</TableHead>
+              <TableHead>Highlighted</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -50,13 +62,26 @@ export default function TagsPage() {
                 <TableCell>{tag.name}</TableCell>
                 <TableCell>{tag.slug}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{tag.articles}</Badge>
+                  <Badge variant="outline">{tag._count.articles}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id={`highlight-${tag.id}`}
+                      checked={tag.is_highlighted}
+                    />
+                    {tag.is_highlighted && (
+                      <Star className="h-4 w-4 text-gold fill-gold" />
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/admin/tags/edit/${tag.id}`}>
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Link>
                     </Button>
                     <Button variant="ghost" size="icon">
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -70,5 +95,5 @@ export default function TagsPage() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

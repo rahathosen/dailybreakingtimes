@@ -1,23 +1,33 @@
-import Link from "next/link"
-import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
+import Link from "next/link";
+import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { prisma } from "@/lib/prisma";
 
-// Mock data - would come from database in real app
-const categories = [
-  { id: 1, name: "News", slug: "news", show_in_header: true, subcategories: 5 },
-  { id: 2, name: "Business", slug: "business", show_in_header: true, subcategories: 4 },
-  { id: 3, name: "Opinion", slug: "opinion", show_in_header: true, subcategories: 3 },
-  { id: 4, name: "Arts", slug: "arts", show_in_header: true, subcategories: 4 },
-  { id: 5, name: "Lifestyle", slug: "lifestyle", show_in_header: true, subcategories: 4 },
-  { id: 6, name: "Sports", slug: "sports", show_in_header: false, subcategories: 6 },
-  { id: 7, name: "Science", slug: "science", show_in_header: false, subcategories: 3 },
-  { id: 8, name: "Education", slug: "education", show_in_header: false, subcategories: 2 },
-]
+export default async function CategoriesPage() {
+  // Ensure user is authenticated
 
-export default function CategoriesPage() {
+  // Fetch categories with subcategory count
+  const categories = await prisma.category.findMany({
+    include: {
+      _count: {
+        select: { subcategories: true },
+      },
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -52,11 +62,16 @@ export default function CategoriesPage() {
                 <TableCell>{category.name}</TableCell>
                 <TableCell>{category.slug}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{category.subcategories}</Badge>
+                  <Badge variant="outline">
+                    {category._count.subcategories}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
-                    <Switch id={`show-${category.id}`} checked={category.show_in_header} />
+                    <Switch
+                      id={`show-${category.id}`}
+                      checked={category.show_in_header}
+                    />
                     {category.show_in_header ? (
                       <Eye className="h-4 w-4 text-muted-foreground" />
                     ) : (
@@ -66,9 +81,11 @@ export default function CategoriesPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/admin/categories/edit/${category.id}`}>
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Link>
                     </Button>
                     <Button variant="ghost" size="icon">
                       <Trash2 className="h-4 w-4 text-destructive" />
@@ -82,5 +99,5 @@ export default function CategoriesPage() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

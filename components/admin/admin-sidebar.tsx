@@ -50,9 +50,6 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
     { name: "News Types", href: "/admin/news-types", icon: Newspaper },
     { name: "Articles", href: "/admin/articles", icon: FileText },
     { name: "Polls", href: "/admin/polls", icon: Vote },
-    { name: "Users", href: "/admin/users", icon: Users },
-    { name: "Comments", href: "/admin/comments", icon: MessageSquare },
-    { name: "Analytics", href: "/admin/analytics", icon: BarChart },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
