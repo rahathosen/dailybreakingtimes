@@ -13,7 +13,7 @@ export function HomeHeroSection() {
           <Card className="col-span-1 lg:col-span-8 overflow-hidden border-0 shadow-lg">
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=600&width=1200"
+                src="/thumbnail.jpg"
                 width={1200}
                 height={600}
                 alt="Featured article"
@@ -52,7 +52,7 @@ export function HomeHeroSection() {
             <Card className="overflow-hidden border-0 shadow-lg">
               <div className="relative">
                 <Image
-                  src="/placeholder.svg?height=300&width=600"
+                  src="/thumbnail.jpg"
                   width={600}
                   height={300}
                   alt="Secondary article"
@@ -84,7 +84,7 @@ export function HomeHeroSection() {
             <Card className="overflow-hidden border-0 shadow-lg">
               <div className="relative">
                 <Image
-                  src="/placeholder.svg?height=300&width=600"
+                  src="/thumbnail.jpg"
                   width={600}
                   height={300}
                   alt="Secondary article"

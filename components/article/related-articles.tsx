@@ -1,20 +1,20 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Clock } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 
 interface RelatedArticle {
-  id: number
-  title: string
-  excerpt: string
-  image: string
-  category: string
-  publishedAt: string
-  slug: string
+  id: number;
+  title: string;
+  excerpt: string;
+  image: string;
+  category: string;
+  publishedAt: string;
+  slug: string;
 }
 
 interface RelatedArticlesProps {
-  articles: RelatedArticle[]
+  articles: RelatedArticle[];
 }
 
 export function RelatedArticles({ articles }: RelatedArticlesProps) {
@@ -27,7 +27,7 @@ export function RelatedArticles({ articles }: RelatedArticlesProps) {
           <Card key={article.id} className="overflow-hidden">
             <div className="relative">
               <Image
-                src={article.image || "/placeholder.svg"}
+                src={article.image || "/thumbnail.jpg"}
                 width={400}
                 height={225}
                 alt={article.title}
@@ -43,13 +43,19 @@ export function RelatedArticles({ articles }: RelatedArticlesProps) {
                 <span>{article.publishedAt}</span>
               </div>
               <h3 className="text-lg font-serif font-bold mb-2 line-clamp-2 hover:text-primary transition-colors duration-200">
-                <Link href={`/${article.category.toLowerCase()}/${article.slug}`}>{article.title}</Link>
+                <Link
+                  href={`/${article.category.toLowerCase()}/${article.slug}`}
+                >
+                  {article.title}
+                </Link>
               </h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">{article.excerpt}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {article.excerpt}
+              </p>
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Clock } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -12,7 +12,7 @@ export default function HeroSection() {
         <Card className="col-span-1 lg:col-span-8 overflow-hidden">
           <div className="relative">
             <Image
-              src="/placeholder.svg?height=600&width=1200"
+              src="/thumbnail.jpg"
               width={1200}
               height={600}
               alt="Featured article"
@@ -30,12 +30,15 @@ export default function HeroSection() {
               <span>2 hours ago</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold mb-2 hover:text-primary transition-colors duration-200">
-              <Link href="#">Global Leaders Reach Historic Climate Agreement at Summit</Link>
+              <Link href="#">
+                Global Leaders Reach Historic Climate Agreement at Summit
+              </Link>
             </h2>
             <p className="text-muted-foreground mb-4">
-              In a landmark decision, world leaders have committed to ambitious carbon reduction targets, signaling a
-              new era in international climate cooperation. The agreement includes substantial financial commitments to
-              support developing nations.
+              In a landmark decision, world leaders have committed to ambitious
+              carbon reduction targets, signaling a new era in international
+              climate cooperation. The agreement includes substantial financial
+              commitments to support developing nations.
             </p>
             <Button variant="outline" size="sm">
               Read Full Story
@@ -48,7 +51,7 @@ export default function HeroSection() {
           <Card className="overflow-hidden">
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=300&width=600"
+                src="/thumbnail.jpg"
                 width={600}
                 height={300}
                 alt="Secondary article"
@@ -64,11 +67,13 @@ export default function HeroSection() {
                 <span>5 hours ago</span>
               </div>
               <h3 className="text-lg font-serif font-bold mb-2 hover:text-primary transition-colors duration-200">
-                <Link href="#">Tech Giants Unveil Revolutionary AI Platform</Link>
+                <Link href="#">
+                  Tech Giants Unveil Revolutionary AI Platform
+                </Link>
               </h3>
               <p className="text-sm text-muted-foreground line-clamp-2">
-                The new platform promises to transform industries from healthcare to transportation with unprecedented
-                capabilities.
+                The new platform promises to transform industries from
+                healthcare to transportation with unprecedented capabilities.
               </p>
             </CardContent>
           </Card>
@@ -76,7 +81,7 @@ export default function HeroSection() {
           <Card className="overflow-hidden">
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=300&width=600"
+                src="/thumbnail.jpg"
                 width={600}
                 height={300}
                 alt="Secondary article"
@@ -92,15 +97,18 @@ export default function HeroSection() {
                 <span>8 hours ago</span>
               </div>
               <h3 className="text-lg font-serif font-bold mb-2 hover:text-primary transition-colors duration-200">
-                <Link href="#">Markets Surge as Central Bank Announces New Policy</Link>
+                <Link href="#">
+                  Markets Surge as Central Bank Announces New Policy
+                </Link>
               </h3>
               <p className="text-sm text-muted-foreground line-clamp-2">
-                Global markets responded positively to the announcement, with major indices reaching record highs.
+                Global markets responded positively to the announcement, with
+                major indices reaching record highs.
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
     </section>
-  )
+  );
 }

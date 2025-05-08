@@ -10,7 +10,7 @@ const editorsPicks = [
     title: "The Future of Sustainable Energy: Breakthroughs and Challenges",
     excerpt:
       "Exploring the latest innovations in renewable energy and the obstacles that remain.",
-    image: "/placeholder.svg?height=200&width=300&text=Energy",
+    image: "/thumbnail.jpg",
     category: "Science",
     time: "1 day ago",
     author: "Dr. Emma Richards",
@@ -20,7 +20,7 @@ const editorsPicks = [
     title: "Global Economic Outlook: Recovery Amid Uncertainty",
     excerpt:
       "Analysis of economic trends and forecasts for the coming year in a post-pandemic world.",
-    image: "/placeholder.svg?height=200&width=300&text=Economy",
+    image: "/thumbnail.jpg",
     category: "Finance",
     time: "2 days ago",
     author: "Robert Chen",
@@ -30,7 +30,7 @@ const editorsPicks = [
     title: "The Evolution of Modern Cinema: From Studios to Streaming",
     excerpt:
       "How streaming platforms are reshaping film production, distribution, and viewing habits.",
-    image: "/placeholder.svg?height=200&width=300&text=Cinema",
+    image: "/thumbnail.jpg",
     category: "Entertainment",
     time: "3 days ago",
     author: "Sophia Martinez",
@@ -53,7 +53,7 @@ export function EditorsPicksSection() {
             <Card key={article.id} className="premium-card hover:shadow-md">
               <div className="relative">
                 <Image
-                  src={article.image || "/placeholder.svg"}
+                  src={article.image || "/thumbnail.jpg"}
                   width={600}
                   height={300}
                   alt={article.title}

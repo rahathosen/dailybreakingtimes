@@ -156,9 +156,7 @@ async function getArticleData(category: string, slug: string) {
         id: related.id,
         title: related.title,
         excerpt: related.excerpt || "",
-        image:
-          related.featured_image ||
-          `/placeholder.svg?height=300&width=600&text=${related.category.name}`,
+        image: related.featured_image || `/thumbnail.jpg`,
         category: related.category.name,
         published_at: related.published_at,
         slug: related.slug,
@@ -166,9 +164,7 @@ async function getArticleData(category: string, slug: string) {
       mostViewedArticles: mostViewedArticles.map((viewed) => ({
         id: viewed.id,
         title: viewed.title,
-        image:
-          viewed.featured_image ||
-          `/placeholder.svg?height=200&width=200&text=${viewed.category.name}`,
+        image: viewed.featured_image || `/thumbnail.jpg`,
         category: viewed.category.name,
         published_at: viewed.published_at,
         slug: viewed.slug,
@@ -177,9 +173,7 @@ async function getArticleData(category: string, slug: string) {
       recentArticles: recentArticles.map((recent) => ({
         id: recent.id,
         title: recent.title,
-        image:
-          recent.featured_image ||
-          `/placeholder.svg?height=200&width=200&text=${recent.category.name}`,
+        image: recent.featured_image || `/thumbnail.jpg`,
         category: recent.category.name,
         published_at: recent.published_at,
         slug: recent.slug,
@@ -257,7 +251,7 @@ export default async function ArticlePage({
               publishedAt={formatDate(article.published_at)}
               readTime={`${Math.ceil(article.content.length / 1000)} min`}
               tags={article.tags.map((t) => t.tag.name)}
-              featuredImage={article.featured_image || "/placeholder.svg"}
+              featuredImage={article.featured_image || "/thumbnail.jpg"}
             />
 
             <ArticleContent content={article.content} />

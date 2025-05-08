@@ -16,7 +16,7 @@ export function CategorySection({ category }: CategoryArticleProps) {
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="relative">
               <Image
-                src={`/placeholder.svg?height=300&width=600&text=${category}1`}
+                src={`/thumbnail.jpg`}
                 width={600}
                 height={300}
                 alt={`${category} article`}

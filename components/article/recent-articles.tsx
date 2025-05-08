@@ -25,7 +25,7 @@ export function RecentArticles({ articles }: RecentArticlesProps) {
           <div key={article.id} className="flex gap-4 items-start">
             <div className="w-20 h-20 relative flex-shrink-0">
               <Image
-                src={article.image || "/placeholder.svg"}
+                src={article.image || "/thumbnail.jpg"}
                 fill
                 alt={article.title}
                 className="object-cover rounded-md"
