@@ -27,7 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MarkdownEditor } from "@/components/markdown-editor";
+import { ArticleEditor } from "@/components/markdown-editor";
 import { ImageUpload } from "@/components/image-upload";
 import { MultiSelect } from "@/components/multi-select";
 import { useToast } from "@/hooks/use-toast";
@@ -397,7 +397,11 @@ export default function NewArticlePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <MarkdownEditor initialValue={content} onChange={setContent} />
+              <ArticleEditor
+                initialValue={content}
+                onChange={setContent}
+                className="mt-4"
+              />
             </CardContent>
           </Card>
         </TabsContent>
