@@ -1,6 +1,6 @@
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Clock, TrendingUp, BookOpen } from "lucide-react"
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Clock, TrendingUp, BookOpen } from "lucide-react";
 
 // Trending stories data
 const trendingStories = [
@@ -32,12 +32,12 @@ const trendingStories = [
     time: "10 hours ago",
     reads: "12.3K",
   },
-]
+];
 
 export function TrendingSection() {
   return (
     <section className="premium-section">
-      <div className="premium-container">
+      <div className="premium-container container px-4">
         <div className="flex items-center mb-6">
           <TrendingUp className="h-5 w-5 mr-2 text-primary" />
           <h2 className="premium-heading text-2xl font-serif">Trending Now</h2>
@@ -67,5 +67,5 @@ export function TrendingSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

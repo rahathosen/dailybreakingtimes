@@ -1,5 +1,5 @@
-import { PollWidget } from "@/components/poll-widget"
-import { AdBanner } from "@/components/ad-banner"
+import { PollWidget } from "@/components/poll-widget";
+import { AdBanner } from "@/components/ad-banner";
 
 // Sample poll data
 const pollData = {
@@ -14,12 +14,12 @@ const pollData = {
   totalVotes: 585,
   category: "Reader Survey",
   expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
-}
+};
 
 export function PollAdSection() {
   return (
     <section className="premium-section bg-secondary/50">
-      <div className="premium-container">
+      <div className="premium-container container px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-card rounded-lg shadow-sm border border-border p-1">
             <PollWidget {...pollData} className="h-full" />
@@ -30,5 +30,5 @@ export function PollAdSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import type React from "react";
 import type { Metadata } from "next/types";
 import { Inter as FontSans } from "next/font/google";
@@ -7,7 +9,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { BreakingNewsTicker } from "@/components/breaking-news-ticker";
 import { LiveNewsTicker } from "@/components/live-news-ticker";
-import ClientLayout from "./client-layout";
+import { usePathname } from "next/navigation";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -19,18 +21,28 @@ export const metadata: Metadata = {
   description: "Your source for premium news and insights",
 };
 
-export default function RootLayout({
+export default function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith("/admin");
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`min-h-screen bg-background font-sans antialiased ${fontSans.variable}`}
-      >
-        <ClientLayout>{children}</ClientLayout>
-      </body>
-    </html>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <div className="relative flex min-h-screen flex-col">
+        {!isAdminRoute && <BreakingNewsTicker />}
+        {!isAdminRoute && <Header />}
+        <div className="flex-1">{children}</div>
+        {!isAdminRoute && <Footer />}
+        <LiveNewsTicker />
+      </div>
+    </ThemeProvider>
   );
 }

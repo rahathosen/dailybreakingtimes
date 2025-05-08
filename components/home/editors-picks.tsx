@@ -1,14 +1,15 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Clock, Award } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Clock, Award } from "lucide-react";
 
 // Featured editors picks
 const editorsPicks = [
   {
     id: 1,
     title: "The Future of Sustainable Energy: Breakthroughs and Challenges",
-    excerpt: "Exploring the latest innovations in renewable energy and the obstacles that remain.",
+    excerpt:
+      "Exploring the latest innovations in renewable energy and the obstacles that remain.",
     image: "/placeholder.svg?height=200&width=300&text=Energy",
     category: "Science",
     time: "1 day ago",
@@ -17,7 +18,8 @@ const editorsPicks = [
   {
     id: 2,
     title: "Global Economic Outlook: Recovery Amid Uncertainty",
-    excerpt: "Analysis of economic trends and forecasts for the coming year in a post-pandemic world.",
+    excerpt:
+      "Analysis of economic trends and forecasts for the coming year in a post-pandemic world.",
     image: "/placeholder.svg?height=200&width=300&text=Economy",
     category: "Finance",
     time: "2 days ago",
@@ -26,21 +28,24 @@ const editorsPicks = [
   {
     id: 3,
     title: "The Evolution of Modern Cinema: From Studios to Streaming",
-    excerpt: "How streaming platforms are reshaping film production, distribution, and viewing habits.",
+    excerpt:
+      "How streaming platforms are reshaping film production, distribution, and viewing habits.",
     image: "/placeholder.svg?height=200&width=300&text=Cinema",
     category: "Entertainment",
     time: "3 days ago",
     author: "Sophia Martinez",
   },
-]
+];
 
 export function EditorsPicksSection() {
   return (
     <section className="premium-section">
-      <div className="premium-container">
+      <div className="premium-container container px-4">
         <div className="flex items-center mb-6">
           <Award className="h-5 w-5 mr-2 text-gold" />
-          <h2 className="premium-heading text-2xl font-serif">Editor's Picks</h2>
+          <h2 className="premium-heading text-2xl font-serif">
+            Editor's Picks
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -68,12 +73,14 @@ export function EditorsPicksSection() {
                 <h3 className="text-lg font-serif font-bold mb-2 hover:text-primary transition-colors duration-200">
                   <Link href="#">{article.title}</Link>
                 </h3>
-                <p className="text-sm text-muted-foreground">{article.excerpt}</p>
+                <p className="text-sm text-muted-foreground">
+                  {article.excerpt}
+                </p>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

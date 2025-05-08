@@ -1,10 +1,10 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Clock } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 
 interface CategoryArticleProps {
-  category: string
+  category: string;
 }
 
 export function CategorySection({ category }: CategoryArticleProps) {
@@ -24,23 +24,27 @@ export function CategorySection({ category }: CategoryArticleProps) {
               />
             </div>
             <CardContent className="p-5">
-              <span className="category-label mb-2 inline-block">{category}</span>
+              <span className="category-label mb-2 inline-block">
+                {category}
+              </span>
               <h3 className="text-lg font-serif font-bold mb-2 hover:text-primary transition-colors duration-200">
-                <Link href="#">{category}: Major Development Reshapes Industry Landscape</Link>
+                <Link href="#">
+                  {category}: Major Development Reshapes Industry Landscape
+                </Link>
               </h3>
               <p className="text-sm text-muted-foreground mb-3">
-                A significant shift in the industry has experts predicting far-reaching consequences for businesses and
-                consumers alike.
+                A significant shift in the industry has experts predicting
+                far-reaching consequences for businesses and consumers alike.
               </p>
               <div className="flex items-center text-xs text-muted-foreground">
                 <span>
                   {category === "Politics"
                     ? "Jane Smith"
                     : category === "Business"
-                      ? "John Doe"
-                      : category === "Technology"
-                        ? "Sarah Johnson"
-                        : "Michael Brown"}
+                    ? "John Doe"
+                    : category === "Technology"
+                    ? "Sarah Johnson"
+                    : "Michael Brown"}
                 </span>
                 <span className="mx-2">•</span>
                 <Clock className="h-3 w-3 mr-1" />
@@ -53,9 +57,13 @@ export function CategorySection({ category }: CategoryArticleProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="premium-card">
             <CardContent className="p-4">
-              <span className="text-xs text-primary font-medium">{category}</span>
+              <span className="text-xs text-primary font-medium">
+                {category}
+              </span>
               <h4 className="text-base font-serif font-bold my-2 hover:text-primary transition-colors duration-200">
-                <Link href="#">New Research Reveals Surprising Trends in {category}</Link>
+                <Link href="#">
+                  New Research Reveals Surprising Trends in {category}
+                </Link>
               </h4>
               <div className="flex items-center text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 mr-1" />
@@ -66,7 +74,9 @@ export function CategorySection({ category }: CategoryArticleProps) {
 
           <Card className="premium-card">
             <CardContent className="p-4">
-              <span className="text-xs text-primary font-medium">{category}</span>
+              <span className="text-xs text-primary font-medium">
+                {category}
+              </span>
               <h4 className="text-base font-serif font-bold my-2 hover:text-primary transition-colors duration-200">
                 <Link href="#">The Future of {category}: Experts Weigh In</Link>
               </h4>
@@ -79,13 +89,13 @@ export function CategorySection({ category }: CategoryArticleProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function CategoriesSection() {
   return (
     <section className="premium-section">
-      <div className="premium-container">
+      <div className="premium-container container px-4">
         <div className="premium-divider"></div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-16">
@@ -96,5 +106,5 @@ export function CategoriesSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
