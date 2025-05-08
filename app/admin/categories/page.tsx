@@ -1,5 +1,9 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,22 +15,118 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { prisma } from "@/lib/prisma";
+import { DeleteConfirmationDialog } from "@/components/admin/delete-confirmation-dialog";
 
-export default async function CategoriesPage() {
-  // Ensure user is authenticated
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  show_in_header: boolean;
+  _count?: {
+    subcategories: number;
+  };
+}
 
-  // Fetch categories with subcategory count
-  const categories = await prisma.category.findMany({
-    include: {
-      _count: {
-        select: { subcategories: true },
-      },
-    },
-    orderBy: {
-      id: "asc",
-    },
-  });
+export default function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/admin/categories");
+      if (!response.ok) {
+        throw new Error("Failed to fetch categories");
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleVisibility = async (id: number, currentValue: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/categories/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          show_in_header: !currentValue,
+          // We need to include these fields as well
+          name: categories.find((c) => c.id === id)?.name,
+          slug: categories.find((c) => c.id === id)?.slug,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update category");
+      }
+
+      // Update local state
+      setCategories(
+        categories.map((category) =>
+          category.id === id
+            ? { ...category, show_in_header: !currentValue }
+            : category
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      // Revert the switch if there was an error
+      setCategories([...categories]);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`/api/admin/categories/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to delete category");
+      }
+
+      // Remove from local state
+      setCategories(categories.filter((category) => category.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert(
+        err instanceof Error ? err.message : "An error occurred while deleting"
+      );
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-destructive/10 text-destructive rounded-md">
+        <p>Error: {error}</p>
+        <Button onClick={fetchCategories} className="mt-2">
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -63,7 +163,7 @@ export default async function CategoriesPage() {
                 <TableCell>{category.slug}</TableCell>
                 <TableCell>
                   <Badge variant="outline">
-                    {category._count.subcategories}
+                    {category._count?.subcategories || 0}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -71,6 +171,12 @@ export default async function CategoriesPage() {
                     <Switch
                       id={`show-${category.id}`}
                       checked={category.show_in_header}
+                      onCheckedChange={() =>
+                        handleToggleVisibility(
+                          category.id,
+                          category.show_in_header
+                        )
+                      }
                     />
                     {category.show_in_header ? (
                       <Eye className="h-4 w-4 text-muted-foreground" />
@@ -87,10 +193,11 @@ export default async function CategoriesPage() {
                         <span className="sr-only">Edit</span>
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
+                    <DeleteConfirmationDialog
+                      title="Delete Category"
+                      description={`Are you sure you want to delete the category "${category.name}"? This action cannot be undone.`}
+                      onDelete={() => handleDelete(category.id)}
+                    />
                   </div>
                 </TableCell>
               </TableRow>
