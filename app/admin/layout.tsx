@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         onClose={() => setSidebarOpen(false)}
       />
       <div className="flex flex-col md:pl-72">
-        <AdminHeader toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <AdminHeader />
         <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
