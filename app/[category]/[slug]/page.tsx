@@ -273,9 +273,6 @@ export default async function ArticlePage({
               articleId={article.id}
             />
           </article>
-          <div className="mt-8">
-            <AdBanner size="medium" className="shadow-sm" />
-          </div>
         </div>
 
         <div className="lg:col-span-4 space-y-8">
@@ -312,6 +309,10 @@ export default async function ArticlePage({
 
       <Separator className="my-12" />
 
+      <div className="my-8">
+        <AdBanner size="medium" className="shadow-sm" />
+      </div>
+
       <RelatedArticles
         articles={relatedArticles.map((article) => ({
           ...article,
@@ -324,12 +325,7 @@ export default async function ArticlePage({
       <aside className="lg:col-span-4 space-y-8 my-12">
         <div className="sticky top-24">
           <PollWidget featured={true} className="mb-8" />
-
-          {/* <AdBanner className="h-64 mb-8" /> */}
-
-          {/* <MostViewedArticles articles={mostViewedArticles} /> */}
-
-          {/* <AdBanner className="h-64 mt-8" /> */}
+          <AdBanner size="small" className="shadow-sm" />
         </div>
       </aside>
     </main>
