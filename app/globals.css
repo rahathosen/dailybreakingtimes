@@ -80,9 +80,8 @@
     --destructive: 0 60% 40%;
     --destructive-foreground: 40 30% 96%;
 
-    /* Fixed dark mode border colors for better contrast */
-    --border: 220 30% 26%;
-    --input: 220 30% 26%;
+    --border: 220 30% 20%;
+    --input: 220 30% 20%;
     --ring: 220 60% 50%;
 
     /* Premium accent colors in dark mode */
@@ -141,7 +140,7 @@
 
   /* Premium styling elements */
   .premium-card {
-    @apply bg-card border border-border rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md;
+    @apply border border-gold/20 shadow-md;
   }
 
   .premium-divider {
@@ -164,4 +163,73 @@
   .premium-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
+}
+
+/* Premium styling utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(40, 60%, 50%), hsl(36, 50%, 60%));
+  }
+
+  .premium-card {
+    @apply border border-gold/20 shadow-md;
+  }
+
+  .premium-button {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground;
+  }
+
+  .premium-accent {
+    @apply text-gold hover:text-gold/90;
+  }
+}
+
+/* Article content styling */
+.article-content {
+  @apply text-base leading-relaxed;
+}
+
+.article-content h2 {
+  @apply text-2xl font-bold mt-8 mb-4 text-primary;
+}
+
+.article-content h3 {
+  @apply text-xl font-bold mt-6 mb-3;
+}
+
+.article-content p {
+  @apply mb-4;
+}
+
+.article-content ul, 
+.article-content ol {
+  @apply mb-6 pl-6;
+}
+
+.article-content li {
+  @apply mb-2;
+}
+
+.article-content blockquote {
+  @apply border-l-4 border-primary pl-4 py-2 my-6 bg-muted/50 italic;
+}
+
+.article-content blockquote cite {
+  @apply block text-sm text-muted-foreground not-italic mt-2;
+}
+
+.article-content a {
+  @apply text-primary underline hover:text-primary/80;
+}
+
+.article-content img {
+  @apply rounded-md my-6 mx-auto;
+}
+
+.article-content .image-caption {
+  @apply text-sm text-muted-foreground text-center mt-2;
 }
