@@ -22,7 +22,7 @@ interface TagPageProps {
 
 // Fetch tag data
 async function getTagData(slug: string, page = 1) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   const res = await fetch(`${baseUrl}/api/tags/${slug}?page=${page}`, {
     next: { revalidate: 60 },

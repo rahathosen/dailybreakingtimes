@@ -13,7 +13,7 @@ interface CategoryPageProps {
 // Fetch category data
 async function getCategoryData(slug: string, page = 1) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
     if (!baseUrl) {
       throw new Error("Base URL not configured");
     }

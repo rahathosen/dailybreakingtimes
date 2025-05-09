@@ -21,7 +21,7 @@ interface SubcategoryPageProps {
 }
 
 async function getSubcategoryData(slug: string, page = 1) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   try {
     const response = await fetch(
