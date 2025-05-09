@@ -12,22 +12,29 @@ interface CategoryPageProps {
 
 // Fetch category data
 async function getCategoryData(slug: string, page = 1) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-
-  const res = await fetch(`${baseUrl}/api/categories/${slug}?page=${page}`, {
-    next: { revalidate: 60 },
-  });
-
-  if (!res.ok) {
-    if (res.status === 404) {
-      return notFound();
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!baseUrl) {
+      throw new Error("Base URL not configured");
     }
-    throw new Error("Failed to fetch category data");
+
+    const res = await fetch(`${baseUrl}/api/categories/${slug}?page=${page}`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        return null; // Return null to trigger notFound()
+      }
+      throw new Error(`Failed to fetch data: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching category data:", error);
+    return null;
   }
-
-  return res.json();
 }
-
 // Generate metadata for the page
 export async function generateMetadata({
   params,
