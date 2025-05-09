@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { AlertTriangle } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export function BreakingNewsTicker() {
-  const [currentNewsIndex, setCurrentNewsIndex] = useState(0)
+  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
 
   const breakingNews = [
     "Supreme Court Rules on Landmark Privacy Case",
@@ -14,15 +14,17 @@ export function BreakingNewsTicker() {
     "Stock Markets Reach Record Highs Amid Economic Data",
     "Olympic Committee Announces Host City for 2036 Games",
     "Tech Giants Unveil New AI Ethics Guidelines",
-  ]
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentNewsIndex((prevIndex) => (prevIndex === breakingNews.length - 1 ? 0 : prevIndex + 1))
-    }, 5000)
+      setCurrentNewsIndex((prevIndex) =>
+        prevIndex === breakingNews.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [breakingNews.length])
+    return () => clearInterval(interval);
+  }, [breakingNews.length]);
 
   return (
     <div className="bg-primary text-primary-foreground py-1 overflow-hidden">
@@ -51,5 +53,5 @@ export function BreakingNewsTicker() {
         </div>
       </div>
     </div>
-  )
+  );
 }

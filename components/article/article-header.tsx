@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, User, Tag as TagIcon, Eye } from "lucide-react";
+import { Clock, Tag as TagIcon, Eye, Hourglass } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ArticleHeaderProps {
@@ -60,13 +60,15 @@ export function ArticleHeader({
             <Clock className="h-4 w-4" />
             <span>{publishedAt}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            <span>{readTime} read</span>
-          </div>
+
           <div className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             <span>{viewCount} views</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Hourglass className="h-4 w-4" />
+            <span>{readTime} read</span>
           </div>
         </div>
       </div>
