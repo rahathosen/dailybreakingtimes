@@ -12,6 +12,8 @@ import { AdBanner } from "@/components/ad-banner";
 import prisma from "@/lib/prisma";
 
 interface ArticleData {
+  id: number;
+  slug: string;
   title: string;
   category: {
     name: string;
@@ -142,6 +144,8 @@ async function getArticleData(category: string, slug: string) {
 
     return {
       article: {
+        id: article.id,
+        slug: article.slug,
         title: article.title,
         category: article.category,
         subcategory: article.subcategory,
@@ -150,7 +154,7 @@ async function getArticleData(category: string, slug: string) {
         excerpt: article.excerpt,
         featured_image: article.featured_image,
         tags: article.tags,
-        viewCount: article.viewCount + 1, // Incremented count
+        viewCount: article.viewCount + 1,
       },
       relatedArticles: relatedArticles.map((related) => ({
         id: related.id,
@@ -248,9 +252,14 @@ export default async function ArticlePage({
               title={article.title}
               category={article.category}
               subcategory={article.subcategory}
-              publishedAt={formatDate(article.published_at)}
+              publishedAt={
+                article.published_at
+                  ? formatDate(article.published_at)
+                  : "Unknown"
+              }
               readTime={`${Math.ceil(article.content.length / 1000)} min`}
               tags={article.tags.map((t) => t.tag.name)}
+              viewCount={article.viewCount}
               featuredImage={article.featured_image || "/thumbnail.jpg"}
             />
 
@@ -272,8 +281,15 @@ export default async function ArticlePage({
         <div className="lg:col-span-4 space-y-8">
           <MostViewedArticles
             articles={mostViewedArticles.map((article) => ({
-              ...article,
-              published_at: formatTimeAgo(article.published_at),
+              id: article.id,
+              title: article.title,
+              image: article.image,
+              category: article.category,
+              slug: article.slug,
+              publishedAt: article.published_at
+                ? formatTimeAgo(article.published_at)
+                : "Unknown",
+              views: article.viewCount,
             }))}
           />
           <div className="mt-8">
@@ -281,8 +297,14 @@ export default async function ArticlePage({
           </div>
           <RecentArticles
             articles={recentArticles.map((article) => ({
-              ...article,
-              published_at: formatTimeAgo(article.published_at),
+              id: article.id,
+              title: article.title,
+              image: article.image,
+              category: article.category,
+              slug: article.slug,
+              publishedAt: article.published_at
+                ? formatTimeAgo(article.published_at)
+                : "Unknown",
             }))}
           />
         </div>
@@ -293,7 +315,9 @@ export default async function ArticlePage({
       <RelatedArticles
         articles={relatedArticles.map((article) => ({
           ...article,
-          published_at: formatTimeAgo(article.published_at),
+          publishedAt: article.published_at
+            ? formatTimeAgo(article.published_at)
+            : "Unknown",
         }))}
       />
 

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, User, Tag as TagIcon } from "lucide-react";
+import { Clock, User, Tag as TagIcon, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ArticleHeaderProps {
@@ -14,6 +14,7 @@ interface ArticleHeaderProps {
     slug: string;
   } | null;
   publishedAt: string;
+  viewCount: number;
   readTime: string;
   tags: string[];
   featuredImage: string;
@@ -25,6 +26,7 @@ export function ArticleHeader({
   subcategory,
   publishedAt,
   readTime,
+  viewCount,
   tags,
   featuredImage,
 }: ArticleHeaderProps) {
@@ -61,6 +63,10 @@ export function ArticleHeader({
           <div className="flex items-center gap-2">
             <User className="h-4 w-4" />
             <span>{readTime} read</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            <span>{viewCount} views</span>
           </div>
         </div>
       </div>
