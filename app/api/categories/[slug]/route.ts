@@ -31,7 +31,7 @@ export async function GET(
     const articles = await prisma.article.findMany({
       where: {
         categoryId: category.id,
-        // published: true,
+        // is_published: true,
       },
       include: {
         category: true,
@@ -50,7 +50,7 @@ export async function GET(
     const totalArticles = await prisma.article.count({
       where: {
         categoryId: category.id,
-        // published: true,
+        // is_published: true,
       },
     });
 

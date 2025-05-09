@@ -11,7 +11,7 @@ export default function Home() {
       <HomeHeroSection />
       <TrendingSection />
       <PollAdSection />
-      <EditorsPicksSection />
+      {/* <EditorsPicksSection /> */}
       <CategoriesSection />
       <FinalAdSection />
     </main>
