@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Expand, Radio } from "lucide-react";
+import { ChevronUp, ChevronDown, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-
 interface LiveNewsItem {
   id: number;
   text: string;
@@ -201,7 +200,11 @@ export function LiveNewsTicker() {
               className="h-7 w-7"
               onClick={() => setIsExpanded(!isExpanded)}
             >
-              <Expand className="h-4 w-4" />
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
