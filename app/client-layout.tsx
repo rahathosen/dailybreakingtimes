@@ -41,7 +41,7 @@ export default function ClientLayout({
         {!isAdminRoute && <Header />}
         <div className="flex-1">{children}</div>
         {!isAdminRoute && <Footer />}
-        <LiveNewsTicker />
+        {!isAdminRoute && <LiveNewsTicker />}
       </div>
     </ThemeProvider>
   );
