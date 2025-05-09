@@ -42,7 +42,7 @@ export function ArticleHeader({
           {subcategory && (
             <>
               <span className="text-muted-foreground">/</span>
-              <Link href={`/${category.slug}/${subcategory.slug}`}>
+              <Link href={`/subcategory/${subcategory.slug}`}>
                 <Badge variant="outline" className="hover:bg-muted">
                   {subcategory.name}
                 </Badge>
