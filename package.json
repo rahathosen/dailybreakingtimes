@@ -6,12 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
-    "@prisma/client": "^6.7.0",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -77,6 +77,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@prisma/client": "^6.7.0",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
