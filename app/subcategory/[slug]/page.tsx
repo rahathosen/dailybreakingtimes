@@ -21,10 +21,7 @@ interface SubcategoryPageProps {
 }
 
 async function getSubcategoryData(slug: string, page = 1) {
-  const isProduction = process.env.NODE_ENV === "production";
-  const baseUrl = isProduction
-    ? process.env.NEXT_PUBLIC_APP_URL
-    : "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   try {
     const response = await fetch(
