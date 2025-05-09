@@ -1,107 +1,128 @@
-"use client"
-import Link from "next/link"
-import { ChevronDown } from "lucide-react"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { cn } from "@/lib/utils"
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 
 interface Category {
-  id: number
-  name: string
-  slug: string
-  show_in_header: boolean
-  subcategories: {
-    id: number
-    name: string
-    slug: string
-    show_in_header: boolean
-    is_highlighted: boolean
-  }[]
+  id: string;
+  name: string;
+  slug: string;
+  _count: {
+    articles: number;
+  };
 }
 
-interface HeaderNavigationProps {
-  categories: Category[]
-  isMobile: boolean
-  isMenuOpen: boolean
-}
+export default function HeaderNavigation() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
-export function HeaderNavigation({ categories, isMobile, isMenuOpen }: HeaderNavigationProps) {
-  return (
-    <nav className={cn("border-b border-t border-border", isMenuOpen ? "block" : "hidden md:block")}>
-      <div className="container mx-auto px-4">
-        {isMobile ? <MobileNavigation categories={categories} /> : <DesktopNavigation categories={categories} />}
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) throw new Error("Failed to fetch categories");
+        const data = await response.json();
+
+        // Filter out categories with no articles
+        const categoriesWithArticles = data.filter(
+          (category: Category) => category._count.articles > 0
+        );
+
+        setCategories(categoriesWithArticles);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  // Show only the first 5 categories in the main navigation
+  const mainCategories = categories.slice(0, 5);
+  const moreCategories = categories.slice(5);
+
+  if (isLoading) {
+    return (
+      <div className="flex space-x-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-4 w-16 bg-muted rounded animate-pulse" />
+        ))}
       </div>
-    </nav>
-  )
-}
+    );
+  }
 
-function MobileNavigation({ categories }: { categories: Category[] }) {
   return (
-    <Accordion type="single" collapsible className="py-2">
-      {categories
-        .filter((category) => category.show_in_header)
-        .map((category) => (
-          <AccordionItem key={category.id} value={category.slug}>
-            <AccordionTrigger className="py-2 text-sm font-medium">{category.name}</AccordionTrigger>
-            <AccordionContent>
-              <ul className="pl-4 space-y-1">
-                {category.subcategories
-                  .filter((sub) => sub.show_in_header)
-                  .map((sub) => (
-                    <li key={sub.id}>
-                      <Link
-                        href={`/${category.slug}/${sub.slug}`}
-                        className={cn(
-                          "block py-1.5 text-sm hover:text-primary",
-                          sub.is_highlighted && "font-medium text-primary",
-                        )}
-                      >
-                        {sub.name}
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-    </Accordion>
-  )
-}
-
-function DesktopNavigation({ categories }: { categories: Category[] }) {
-  return (
-    <ul className="flex items-center justify-between py-1">
-      {categories
-        .filter((category) => category.show_in_header)
-        .map((category) => (
-          <li key={category.id} className="relative group py-2">
-            <Link
-              href={`/${category.slug}`}
-              className="inline-flex items-center px-3 py-2 text-sm font-medium hover:text-primary"
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <Link href="/" legacyBehavior passHref>
+            <NavigationMenuLink
+              className={navigationMenuTriggerStyle()}
+              active={pathname === "/"}
             >
-              {category.name}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              Home
+            </NavigationMenuLink>
+          </Link>
+        </NavigationMenuItem>
+
+        {mainCategories.map((category) => (
+          <NavigationMenuItem key={category.id}>
+            <Link href={`/${category.slug}`} legacyBehavior passHref>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                active={pathname === `/${category.slug}`}
+              >
+                {category.name}
+              </NavigationMenuLink>
             </Link>
-            <div className="absolute left-0 top-full z-50 hidden group-hover:block bg-background shadow-lg rounded-md p-4 min-w-[200px] border border-border">
-              <ul className="space-y-1">
-                {category.subcategories
-                  .filter((sub) => sub.show_in_header)
-                  .map((sub) => (
-                    <li key={sub.id}>
+          </NavigationMenuItem>
+        ))}
+
+        {moreCategories.length > 0 && (
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>More</NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <ul className="grid w-[200px] gap-3 p-4">
+                {moreCategories.map((category) => (
+                  <li key={category.id}>
+                    <NavigationMenuLink asChild>
                       <Link
-                        href={`/${category.slug}/${sub.slug}`}
+                        href={`/${category.slug}`}
                         className={cn(
-                          "block px-2 py-1.5 text-sm hover:bg-muted rounded-md",
-                          sub.is_highlighted && "font-medium text-primary",
+                          "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                          pathname === `/${category.slug}` &&
+                            "bg-accent text-accent-foreground"
                         )}
                       >
-                        {sub.name}
+                        <div className="text-sm font-medium leading-none">
+                          {category.name}
+                        </div>
+                        <p className="line-clamp-1 text-xs leading-snug text-muted-foreground">
+                          {category._count.articles} articles
+                        </p>
                       </Link>
-                    </li>
-                  ))}
+                    </NavigationMenuLink>
+                  </li>
+                ))}
               </ul>
-            </div>
-          </li>
-        ))}
-    </ul>
-  )
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        )}
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
 }
