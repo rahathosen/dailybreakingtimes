@@ -5,7 +5,7 @@ import type { Metadata } from "next/types";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Header from "@/components/header";
+import Header from "@/components/header/header";
 import Footer from "@/components/footer";
 import { BreakingNewsTicker } from "@/components/breaking-news-ticker";
 import { LiveNewsTicker } from "@/components/live-news-ticker";

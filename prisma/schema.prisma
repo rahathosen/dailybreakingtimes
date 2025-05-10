@@ -113,3 +113,18 @@ model PollOption {
   pollId Int
   poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
 }
+
+model Settings {
+  id            Int      @id @default(autoincrement())
+  newspaperName String   @default("DailyBreakingTimes")
+  tagline       String   @default("Your Source for Breaking News")
+  description   String   @default("DailyBreakingTimes is your premier source for the latest news, in-depth analysis, and expert opinions on current events around the world.")
+  contactEmail  String   @default("contact@dailybreakingtimes.com")
+  facebookUrl   String?  @default("https://facebook.com/dailybreakingtimes")
+  twitterUrl    String?  @default("https://twitter.com/dailybreakingtimes")
+  instagramUrl  String?  @default("https://instagram.com/dailybreakingtimes")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([id])
+}

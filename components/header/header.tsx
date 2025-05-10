@@ -1,23 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Menu, Search, X, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { DateTimeDisplay } from "@/components/date-time-display"
-import HeaderLogo from "@/components/header/header-logo"
-import HeaderSearch from "@/components/header/header-search"
-import HeaderNavigation from "@/components/header/header-navigation"
-import HeaderTags from "@/components/header/header-tags"
-import { useMobile } from "@/hooks/use-mobile"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Menu, Search, X, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { DateTimeDisplay } from "@/components/date-time-display";
+import { HeaderLogo } from "./header-logo";
+import { HeaderSearch } from "./header-search";
+import HeaderNavigation from "./header-navigation";
+import { HeaderTags } from "./header-tags";
+import { useMobile } from "@/hooks/use-mobile";
 
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const isMobile = useMobile()
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const isMobile = useMobile();
 
   // Categories for navigation
   const categories = [
@@ -67,25 +72,25 @@ export default function Header() {
         { name: "Books", href: "/arts/books" },
       ],
     },
-  ]
+  ];
 
   // Popular tags
-  const tags = ["Climate", "Elections", "Economy", "Health", "Tech", "Science"]
+  const tags = ["Climate", "Elections", "Economy", "Health", "Tech", "Science"];
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
-        setIsScrolled(true)
+        setIsScrolled(true);
       } else {
-        setIsScrolled(false)
+        setIsScrolled(false);
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   if (isScrolled) {
     // Compact header when scrolled
@@ -94,7 +99,9 @@ export default function Header() {
         <div className="container mx-auto h-full flex items-center justify-between px-4">
           {/* Logo on the left */}
           <Link href="/" className="flex items-center">
-            <span className="text-xl font-serif font-bold">DailyBreakingTimes</span>
+            <span className="text-xl font-serif font-bold">
+              DailyBreakingTimes
+            </span>
           </Link>
 
           {/* Navigation in the middle - desktop only */}
@@ -106,7 +113,9 @@ export default function Header() {
                   className="px-3 py-2 text-sm font-medium hover:text-primary transition-colors flex items-center"
                 >
                   {category.name}
-                  {category.subcategories && <ChevronDown className="ml-1 h-4 w-4 opacity-70" />}
+                  {category.subcategories && (
+                    <ChevronDown className="ml-1 h-4 w-4 opacity-70" />
+                  )}
                 </Link>
 
                 {/* Dropdown for subcategories */}
@@ -138,7 +147,11 @@ export default function Header() {
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="text-foreground"
             >
-              {isSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              {isSearchOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Search className="h-5 w-5" />
+              )}
             </Button>
 
             {/* Mobile menu - only on mobile */}
@@ -150,14 +163,22 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <div className="py-4">
-                  <h2 className="text-lg font-bold mb-4 font-serif">DailyBreakingTimes</h2>
+                  <h2 className="text-lg font-bold mb-4 font-serif">
+                    DailyBreakingTimes
+                  </h2>
                   <div className="mb-4">
-                    <Input type="search" placeholder="Search..." className="w-full" />
+                    <Input
+                      type="search"
+                      placeholder="Search..."
+                      className="w-full"
+                    />
                   </div>
                   <Accordion type="single" collapsible className="w-full">
                     {categories.map((category) => (
                       <AccordionItem key={category.name} value={category.name}>
-                        <AccordionTrigger className="text-base font-medium">{category.name}</AccordionTrigger>
+                        <AccordionTrigger className="text-base font-medium">
+                          {category.name}
+                        </AccordionTrigger>
                         <AccordionContent>
                           <div className="flex flex-col space-y-2 pl-4">
                             {category.subcategories?.map((subcategory) => (
@@ -169,7 +190,10 @@ export default function Header() {
                                 {subcategory.name}
                               </Link>
                             )) || (
-                              <Link href={category.href} className="text-sm hover:text-primary transition-colors py-1">
+                              <Link
+                                href={category.href}
+                                className="text-sm hover:text-primary transition-colors py-1"
+                              >
                                 All {category.name}
                               </Link>
                             )}
@@ -188,13 +212,20 @@ export default function Header() {
             <div className="absolute top-full left-0 right-0 bg-background border-b border-border p-4 shadow-md animate-in slide-in-from-top">
               <div className="container mx-auto">
                 <div className="flex items-center">
-                  <Input type="search" placeholder="Search for articles..." className="flex-1" autoFocus />
+                  <Input
+                    type="search"
+                    placeholder="Search for articles..."
+                    className="flex-1"
+                    autoFocus
+                  />
                   <Button variant="default" className="ml-2">
                     Search
                   </Button>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <span className="text-sm text-muted-foreground">Popular:</span>
+                  <span className="text-sm text-muted-foreground">
+                    Popular:
+                  </span>
                   {tags.map((tag) => (
                     <Link
                       key={tag}
@@ -210,7 +241,7 @@ export default function Header() {
           )}
         </div>
       </header>
-    )
+    );
   }
 
   // Full header when not scrolled
@@ -251,5 +282,5 @@ export default function Header() {
       {/* Tags bar */}
       <HeaderTags />
     </header>
-  )
+  );
 }
